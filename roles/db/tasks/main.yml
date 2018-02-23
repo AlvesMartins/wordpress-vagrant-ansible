@@ -1,0 +1,63 @@
+---
+- name: MariaDB | Install database
+  apt:
+    name: '{{ item }}'
+    state: latest
+  with_items:
+    - mariadb-server
+    - python-mysqldb
+  tags:
+    - db
+
+- name: MariaDB | Starting and enabled database
+  service:
+    name: mysql
+    state: started
+    enabled: yes
+  tags:
+    - db
+
+- name: MariaDB | Create a new pass for root user
+  command: openssl rand -base64 6 creates=/root/.my.cnf
+  register: mysql_root_pass
+  tags:
+    - db
+  
+- name: MariaDB | Display new pass in playbook  output
+  debug: 
+    msg: "New root pass: {{mysql_root_pass.stdout}}"
+  when: mysql_root_pass.changed
+  tags:
+    - db
+
+- name: MariaDB | Remove anonymous access
+  mysql_user: name="" host={{ item }} state=absent
+  with_items:
+    - localhost
+    - "{{ ansible_fqdn }}"
+  tags:
+    - db
+
+- name: MariaDB | Remove test database
+  mysql_db: name=test state=absent
+  tags:
+    - db
+
+- name: MariaDB | Change root pass
+  mysql_user: name=root host={{ item }} password={{ mysql_root_pass.stdout }}
+  with_items:
+    - "{{ansible_fqdn}}"
+    - 127.0.0.1
+    - ::1
+    - localhost
+  when: mysql_root_pass.changed
+  tags:
+    - db
+
+- name: MariaDB | Publish file .my.cnf in the root home
+  template:
+    src: templates/client-my-cnf.j2
+    dest: /root/.my.cnf
+  when: mysql_root_pass.changed
+  tags:
+    - db

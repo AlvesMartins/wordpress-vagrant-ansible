@@ -1,0 +1,50 @@
+---
+- name: Wordpress | Remove Apache welcome page
+  file: name=/var/www/html/index.html state=absent
+
+- name: Wordpress | Copy wordpress.tar.gz to server
+  unarchive:
+#    src: "{{ wp_url_download }}"
+    src: wordpress-4.9.tar.gz
+    dest: /tmp/
+    remote_src: yes
+    creates: /tmp/wordpress/wp-settings.php
+
+- name: Wordpress | Publicando o wordpress no apache
+  command: cp -r /tmp/wordpress/. /var/www/html/ creates=/var/www/html/wp-settings.php
+
+
+- name: Wordpress | Create database wordpress
+#  become_method: su
+  mysql_db: name={{ wp_db_name }} state=present
+
+- name: Wordpress | Create wordpress user in database wordpress
+  mysql_user: name={{ wp_db_user }} host={{ wp_db_host }} password={{ wp_db_pass }} priv='{{ wp_db_name }}.*:ALL' 
+
+- name: Fetch random salts for WordPress config
+  local_action: command curl https://api.wordpress.org/secret-key/1.1/salt/
+  register: "wp_salt"
+  become: no
+
+- name: Wordpress | Copy file wp-config.php
+  template: src=templates/wp-config.php.j2 dest=/var/www/html/wp-config.php
+
+
+
+#- name: Wordpress | Set Permission
+#  file: path=/var/www/html/ owner=apache group=apache recurse=yes
+
+- name: Firewalld | Install python-firewall package
+  apt: name=firewalld state=latest
+
+- name: Firewalld | Allow apache ports
+  firewalld: service={{ item }} permanent=true state=enabled
+  with_items:
+   - http
+   - https
+
+- name: Firewalld | Recarregando o firewalld
+  service: name=firewalld state=restarted
+
+#- name: SELinux | Ajustando a configuracao booleana do SELinux
+#   command: setsebool -P httpd_can_network_connect_db on

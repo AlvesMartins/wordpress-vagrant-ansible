@@ -1,0 +1,21 @@
+wp_version: 4.9
+wp_url_download: https://wordpress.org/wordpress-{{ wp_version }}.tar.gz
+
+# Wordpress database settings
+wp_db_host: localhost
+wp_db_name: wordpress
+wp_db_user: wordpress
+wp_db_pass: secret
+wp_db_table_prefix: wp_
+
+
+# httpd settings
+http_serverroot: "/etc/apache2"
+http_port: 80
+http_user: apache
+http_group: apache
+http_serveradmin: seuemail@seudominio.com
+http_servername: blog.churrops.lab
+http_documentroot: "/var/www/html"
+http_errorlog: "logs/error_log"
+http_accesslog: "logs/access_log"

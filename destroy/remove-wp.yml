@@ -1,0 +1,30 @@
+---
+- name: MariaDB | Deploy and Security Instalation
+  hosts: webservers
+  remote_user: root
+  tasks:
+
+    - name: WEB | Remove Packages
+      yum:
+        name: '{{ item }}'
+        state: removed
+      with_items:
+        - httpd
+        - mod_ssl
+        - php7.0
+        - php7.0-fpm
+        - php7.0-gd
+        - php7.0-mysql
+        - php7.0-mbstring
+        - php7.0-mcrypt
+        - mariadb-server
+
+    - name: REMOVE | Destroy all files and dirs
+      file: 
+        name: "{{ item }}"
+        state: absent
+      with_items:
+        - /var/www/html/wordpress 
+        - /var/lib/mysql/
+        - /root/.my.cnf
+        - /tmp/wordpress

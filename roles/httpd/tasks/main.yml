@@ -1,0 +1,44 @@
+---
+#- name: WEB | Add EPEL repository
+#  apt:
+#    name: '{{ item }}'
+#    state: present 
+#  with_items:
+#    - https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+#    - http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+#        - https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+#        - https://mirror.webtatic.com/yum/el6/latest.rpm
+- name: Update
+  command: apt-get update
+
+- name: WEB | Install Packages
+  apt:
+    name: '{{ item }}'
+    state: latest
+  with_items:
+    - apache2
+    - php5
+    - php5-fpm
+    - php5-gd
+    - php5-mysql
+    - python-mysqldb
+    - php5-mcrypt
+    - libapache2-mod-php5
+
+- name: Install MOD Apache2
+  command: a2enmod ssl
+
+- name: WEB | Starting and Enable Apache
+  service: 
+    name: apache2
+    state: started
+    enabled: yes
+
+#- name: WEB | ServerSignature and ServerTokens
+#  lineinfile:
+#    path: /etc/apache2/conf-available/security.conf
+#    line: '{{ item }}'
+#  with_items:
+#    - ServerSignature Off
+#    - ServerTokens Prod
+#  notify: restart apache2

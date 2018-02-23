@@ -1,0 +1,2 @@
+- name: SELinux | Ajustando a configuracao booleana do SELinux
+  command: setsebool -P httpd_can_network_connect_db on

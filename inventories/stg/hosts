@@ -1,0 +1,7 @@
+[dbservers]
+db
+
+[webservers]
+app
+
+
