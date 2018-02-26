@@ -37,7 +37,7 @@ wp_db_table_prefix: wp_
 
 Run deploy
 
-<pre>./deploy.sh prd ~/.ssh/id_rsa</pre>
+<pre>vagrant up</pre>
 
 <h3>MySQL root pass</h3>
 
